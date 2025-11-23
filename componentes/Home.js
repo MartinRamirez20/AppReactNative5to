@@ -9,23 +9,10 @@ export default function Home() {
   useEffect(() => {
     const obtenerPersonajes = async () => {
       try {
-        const res = await fetch("https://www.swapi.tech/api/people?page=1&limit=20");
+        // API que incluye imágenes
+        const res = await fetch("https://akabab.github.io/starwars-api/api/all.json");
         const json = await res.json();
-        
-        // Obtener detalles de cada personaje
-        const detalles = await Promise.all(
-          json.results.map(async (p) => {
-            const detRes = await fetch(p.url);
-            const detJson = await detRes.json();
-            return {
-              uid: p.uid,
-              name: p.name,
-              ...detJson.result.properties
-            };
-          })
-        );
-        
-        setPersonajes(detalles);
+        setPersonajes(json);
         setCargando(false);
       } catch (err) {
         console.error(err);
@@ -36,6 +23,30 @@ export default function Home() {
 
     obtenerPersonajes();
   }, []);
+
+  // Componente para manejar imágenes con fallback
+  const ImagenPersonaje = ({ uri, nombre }) => {
+    const [errorImagen, setErrorImagen] = useState(false);
+    
+    // Placeholder con iniciales si la imagen falla
+    if (errorImagen || !uri) {
+      return (
+        <View style={styles.imagenPlaceholder}>
+          <Text style={styles.iniciales}>
+            {nombre ? nombre.charAt(0).toUpperCase() : '?'}
+          </Text>
+        </View>
+      );
+    }
+
+    return (
+      <Image
+        source={{ uri }}
+        style={styles.imagen}
+        onError={() => setErrorImagen(true)}
+      />
+    );
+  };
 
   if (cargando) {
     return (
@@ -57,22 +68,28 @@ export default function Home() {
   return (
     <ScrollView style={styles.contenedor}>
       <Text style={styles.titulo}>Personajes de Star Wars</Text>
+      <Text style={styles.subtitulo}>{personajes.length} personajes encontrados</Text>
       <View style={styles.lista}>
         {personajes.map((personaje) => (
-          <TouchableOpacity key={personaje.uid} style={styles.item}>
-            <Image
-              source={{
-                uri: `https://starwars-visualguide.com/assets/img/characters/${personaje.uid}.jpg`,
-              }}
-              style={styles.imagen}
-              defaultSource={{ uri: 'https://via.placeholder.com/120' }}
-            />
+          <TouchableOpacity key={personaje.id} style={styles.item}>
+            <ImagenPersonaje uri={personaje.image} nombre={personaje.name} />
             <Text style={styles.nombre}>{personaje.name}</Text>
             <View style={styles.detalles}>
-              <Text style={styles.detalle}>{personaje.birth_year}</Text>
-              <Text style={styles.detalle}>{personaje.height} cm</Text>
-              <Text style={styles.detalle}>{personaje.mass} kg</Text>
-              <Text style={styles.detalle}>{personaje.eye_color}</Text>
+              {personaje.species && (
+                <Text style={styles.detalle}>Especie: {personaje.species}</Text>
+              )}
+              {personaje.height && (
+                <Text style={styles.detalle}>Estatura: {personaje.height} m</Text>
+              )}
+              {personaje.mass && (
+                <Text style={styles.detalle}>Peso: {personaje.mass} kg</Text>
+              )}
+              {personaje.homeworld && (
+                <Text style={styles.detalle}>Nacionalidad: {personaje.homeworld}</Text>
+              )}
+              {personaje.gender && (
+                <Text style={styles.detalle}>Genero: {personaje.gender}</Text>
+              )}
             </View>
           </TouchableOpacity>
         ))}
@@ -91,7 +108,13 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     textAlign: 'center',
     color: '#FFE81F',
-    marginVertical: 20,
+    marginTop: 20,
+  },
+  subtitulo: {
+    fontSize: 14,
+    textAlign: 'center',
+    color: '#888',
+    marginBottom: 15,
   },
   lista: {
     flexDirection: 'row',
@@ -115,6 +138,19 @@ const styles = StyleSheet.create({
     borderRadius: 60,
     resizeMode: 'cover',
     backgroundColor: '#0f3460',
+  },
+  imagenPlaceholder: {
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    backgroundColor: '#0f3460',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  iniciales: {
+    fontSize: 48,
+    fontWeight: 'bold',
+    color: '#FFE81F',
   },
   nombre: {
     fontSize: 14,

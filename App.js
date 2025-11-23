@@ -9,6 +9,7 @@ import { Text, View, StyleSheet } from 'react-native';
 // Componentes
 import Home from './componentes/Home';
 import Films from './componentes/Films';
+import Original from './componentes/Original';
 import Login from './componentes/Login';
 import Registro from './componentes/Registro';
 import Perfil from './componentes/Perfil';
@@ -48,6 +49,9 @@ function TabsAutenticado() {
         },
         tabBarActiveTintColor: '#FFE81F',
         tabBarInactiveTintColor: '#888',
+        tabBarLabelStyle: {
+          fontSize: 10,
+        },
       }}
     >
       <Tab.Screen 
@@ -55,7 +59,7 @@ function TabsAutenticado() {
         component={Home}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon emoji="👤" focused={focused} />,
-          headerTitle: 'Star Wars - Personajes',
+          headerTitle: 'Personajes',
         }}
       />
       <Tab.Screen 
@@ -63,7 +67,18 @@ function TabsAutenticado() {
         component={Films}
         options={{
           tabBarIcon: ({ focused }) => <TabIcon emoji="🎬" focused={focused} />,
-          headerTitle: 'Star Wars - Películas',
+          headerTitle: 'Películas',
+        }}
+      />
+      <Tab.Screen 
+        name="Sable" 
+        component={Original}
+        options={{
+          tabBarIcon: ({ focused }) => <TabIcon emoji="⚔️" focused={focused} />,
+          headerTitle: 'Crea tu Sable',
+          headerStyle: {
+            backgroundColor: '#000',
+          },
         }}
       />
       <Tab.Screen 
@@ -172,6 +187,6 @@ const styles = StyleSheet.create({
     borderBottomColor: '#FFE81F',
   },
   emoji: {
-    fontSize: 24,
+    fontSize: 22,
   },
 });
